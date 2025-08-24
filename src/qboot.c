@@ -55,7 +55,7 @@
 #define QBOOT_BUF_SIZE                  4096//must is 4096
 #if (defined(QBOOT_USING_QUICKLZ) || defined(QBOOT_USING_FASTLZ))
 #define QBOOT_CMPRS_READ_SIZE           4096 //it can is 512, 1024, 2048, 4096,
-#define QBOOT_CMPRS_BUF_SIZE            (QBOOT_BUF_SIZE + QBOOT_CMPRS_READ_SIZE)
+#define QBOOT_CMPRS_BUF_SIZE            (QBOOT_BUF_SIZE + QBOOT_CMPRS_READ_SIZE + 32)
 #else
 #define QBOOT_CMPRS_READ_SIZE           QBOOT_BUF_SIZE
 #define QBOOT_CMPRS_BUF_SIZE            QBOOT_BUF_SIZE
