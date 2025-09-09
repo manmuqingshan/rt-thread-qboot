@@ -44,7 +44,7 @@ static void qbt_qspi_flash_init(void)
     //waiting realize
 }
 
-void qbt_jump_to_app(void)
+rt_weak void qbt_jump_to_app(void)
 {
     qbt_qspi_flash_init();
     
@@ -83,7 +83,7 @@ static int nor_flash_memory_mapped_mode(struct rt_qspi_device * device)
 
 }
 
-void qbt_jump_to_app(void)
+rt_weak void qbt_jump_to_app(void)
 {
     typedef void (*app_func_t)(void);
     app_func_t app_func;
@@ -150,7 +150,7 @@ void qbt_jump_to_app(void)
     LOG_E("Qboot jump to application fail.");
 }
 #else
-void qbt_jump_to_app(void)
+rt_weak void qbt_jump_to_app(void)
 {
     typedef void (*app_func_t)(void);
     u32 app_addr = QBOOT_APP_ADDR;
