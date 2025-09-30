@@ -22,12 +22,14 @@ qboot
 │   │   qboot_aes.h                   // aes解密模块头文件
 │   │   qboot_fastlz.h                // fastlz解压模块头文件
 │   │   qboot_gzip.h                  // gzip解压模块头文件
+│   │   qboot_hpatchlite.h            // hpatchlite解压模块头文件
 │   └───qboot_quicklz.h     	      // quicklz解压模块头文件
 ├───src                               // 源码目录
 │   │   qboot.c                       // 主模块
 │   │   qboot_aes.c                   // aes解密模块
 │   │   qboot_fastlz.c                // fastlz解压模块
 │   │   qboot_gzip.c                  // gzip解压模块
+│   │   qboot_hpatchlite.c            // hpatchlite解压模块
 │   └───qboot_quicklz                 // quicklz解压模块
 ├───tools                             // 工具目录
 │   └───QBootPackager_V1.00.zip       // 升级包打包器
@@ -67,6 +69,7 @@ Quick bootloader 遵循 LGPLv2.1 许可，详见 `LICENSE` 文件。
 | QBOOT_AES_KEY 		    | AES的32字节密钥
 | QBOOT_USING_GZIP 			| 使用gzip解压缩功能
 | QBOOT_USING_QUICKLZ 		| 使用quicklz解压缩功能
+| QBOOT_USING_HPATCHLITE    | 使用hpatchlitec差分升级功能
 | QBOOT_USING_FASTLZ 		| 使用fastlz解压缩功能
 | QBOOT_USING_SHELL 		| 使用命令行功能
 | QBOOT_SHELL_KEY_CHK_TMO 	| 等待用户按键进入shell的超时时间
@@ -87,6 +90,8 @@ Quick bootloader 遵循 LGPLv2.1 许可，详见 `LICENSE` 文件。
 ### 2.3 各功能模块资源使用情况，详见 ：[qboot各项配置资源占用情况说明](https://gitee.com/qiyongzhong0/rt-thread-qboot/blob/master/doc/QBoot%E5%90%84%E9%A1%B9%E9%85%8D%E7%BD%AE%E8%B5%84%E6%BA%90%E5%8D%A0%E7%94%A8%E6%83%85%E5%86%B5%E8%AF%B4%E6%98%8E.md)
 
 ### 2.4 如何使用QBoot组件快速制作bootloader，详见：[QBoot使用指导](https://gitee.com/qiyongzhong0/rt-thread-qboot/blob/master/doc/QBoot%E4%BD%BF%E7%94%A8%E6%8C%87%E5%AF%BC.md)
+
+### 2.5 差分升级使用说明, 详见：[QBootHpatchLite使用说明](https://gitee.com/qiyongzhong0/rt-thread-qboot/blob/master/doc/QBootHpatchLite%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
 
 ## 3. 联系方式
 
