@@ -434,7 +434,7 @@ int qbt_hpatchlite_release_from_part(const fal_partition_t patch_part, const fal
         return -1;
     }
 
-    result = hpi_patch(&instance.parent, 4096, 4096, _do_read_patch, _do_read_old, _do_write_new_flash);
+    result = hpi_patch(&instance.parent, QBOOT_HPATCH_PATCH_CACHE_SIZE, QBOOT_HPATCH_DECOMPRESS_CACHE_SIZE, _do_read_patch, _do_read_old, _do_write_new_flash);
 
     if (result == HPATCHI_SUCCESS && instance.swap_write_pos > 0)
     {
@@ -445,19 +445,22 @@ int qbt_hpatchlite_release_from_part(const fal_partition_t patch_part, const fal
     LOG_I("HPatchLite: Using RAM buffer strategy.");
     instance.swap_buffer_size = QBOOT_HPATCH_RAM_BUFFER_SIZE;
     instance.swap_buffer = rt_malloc(instance.swap_buffer_size);
-    if (!instance.swap_buffer) {
+    if (!instance.swap_buffer)
+    {
         LOG_E("Failed to malloc %d bytes for RAM buffer.", instance.swap_buffer_size);
         return -1;
     }
     instance.swap_write_pos = 0;
     instance.committed_len = 0;
     LOG_D("Allocated %d bytes for RAM buffer.", instance.swap_buffer_size);
-    
-    result = hpi_patch(&instance.parent, 4096, 4096, _do_read_patch, _do_read_old, _do_write_new_ram);
-    
+
+    result = hpi_patch(&instance.parent, QBOOT_HPATCH_PATCH_CACHE_SIZE, QBOOT_HPATCH_DECOMPRESS_CACHE_SIZE, _do_read_patch, _do_read_old, _do_write_new_ram);
+
     // After the patch loop, commit the last data block in RAM if it exists
-    if (result == HPATCHI_SUCCESS && instance.swap_write_pos > 0) {
-        if (!_commit_ram_to_old(&instance)) {
+    if (result == HPATCHI_SUCCESS && instance.swap_write_pos > 0)
+    {
+        if (!_commit_ram_to_old(&instance))
+        {
             result = HPATCHI_PATCH_ERROR;
         }
     }
