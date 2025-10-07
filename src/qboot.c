@@ -20,8 +20,10 @@
 #include <qboot_fastlz.h>
 #include <qboot_quicklz.h>
 #include <string.h>
-
+#ifdef QBOOT_USING_SHELL
 #include "shell.h"
+#endif
+
 #include "crc32.h"
 
 #ifdef QBOOT_USING_STATUS_LED
@@ -971,6 +973,20 @@ static void qbt_close_sys_shell(void)
     else
     {
         rt_thread_delete(thread);
+    }
+
+    rt_sem_t sem = (rt_sem_t)rt_object_find(FINSH_SEM_NAME, RT_Object_Class_Semaphore);
+    if (sem == NULL)
+    {
+        return;
+    }
+    if (rt_object_is_systemobject((rt_object_t)sem))
+    {
+        rt_sem_detach(sem);
+    }
+    else
+    {
+        rt_sem_delete(sem);
     }
 }
 

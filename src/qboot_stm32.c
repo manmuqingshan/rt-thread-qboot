@@ -7,10 +7,10 @@
  */
 
 #include <board.h>
-
-#ifdef CHIP_FAMILY_STM32
-
 #include <rtthread.h>
+
+#if defined (CHIP_FAMILY_STM32) || defined (SOC_FAMILY_STM32)
+
 #include <rtdevice.h>
 #include <qboot.h>
 
