@@ -19,6 +19,7 @@
 #include <qboot_gzip.h>
 #include <qboot_fastlz.h>
 #include <qboot_quicklz.h>
+#include <qboot_hpatchlite.h>
 #include <string.h>
 #ifdef QBOOT_USING_SHELL
 #include "shell.h"
@@ -73,7 +74,8 @@
 #define QBOOT_ALGO_CMPRS_GZIP           (1 << 8)
 #define QBOOT_ALGO_CMPRS_QUICKLZ        (2 << 8)
 #define QBOOT_ALGO_CMPRS_FASTLZ         (3 << 8)
-#define QBOOT_ALGO_CMPRS_MASK           (0x0F << 8)
+#define QBOOT_ALGO_CMPRS_HPATCHLITE     (4 << 8)
+#define QBOOT_ALGO_CMPRS_MASK           (0x1F << 8)
 
 #define QBOOT_ALGO2_VERIFY_NONE         0
 #define QBOOT_ALGO2_VERIFY_CRC          1
@@ -141,7 +143,7 @@ static bool qbt_fw_info_check(fw_info_t *fw_info)
     {
         return(false);
     }
-    
+
     return (crc32_cal((u8 *)fw_info, (sizeof(fw_info_t) - sizeof(u32))) == fw_info->hdr_crc);
 }
 
@@ -254,11 +256,14 @@ static bool qbt_fw_decompress_init(int cmprs_type)
     case QBOOT_ALGO_CMPRS_FASTLZ:
         break;
     #endif
-    
+    #ifdef QBOOT_USING_HPATCHLITE
+    case QBOOT_ALGO_CMPRS_HPATCHLITE:
+        break;
+    #endif
     default:
         return(false);
     }
-    
+
     return(true);
 }
 
@@ -386,7 +391,7 @@ static int qbt_dest_part_write(fal_partition_t part, u32 pos, u8 *decmprs_buf, u
         break;
     #endif
     
-    #ifdef QBOOT_USING_QUICKLZ    
+    #ifdef QBOOT_USING_QUICKLZ
     case QBOOT_ALGO_CMPRS_QUICKLZ:
         while(1)
         {
@@ -710,7 +715,19 @@ static bool qbt_fw_release(const char *dst_part_name, const char *src_part_name,
         LOG_E("Qboot release firmware fail. nonsupport compress type.");
         return(false);
     }
-
+    #ifdef QBOOT_USING_HPATCHLITE
+    if(cmprs_type == QBOOT_ALGO_CMPRS_HPATCHLITE)
+    {
+        if(qbt_hpatchlite_release_from_part(src_part, dst_part, fw_info->pkg_size, fw_info->raw_size, sizeof(fw_info_t)) == true)
+        {
+            goto done;
+        }
+        else
+        {
+            return(false);
+        }
+    }
+    #endif
     rt_kprintf("Start erase partition %s ...\n", dst_part_name);
     if ((fal_partition_erase(dst_part, 0, fw_info->raw_size) < 0) 
         || (fal_partition_erase(dst_part, dst_part->len - sizeof(fw_info_t), sizeof(fw_info_t)) < 0))
@@ -751,7 +768,8 @@ static bool qbt_fw_release(const char *dst_part_name, const char *src_part_name,
         rt_kprintf("\b\b\b%02d%%", (dst_write_pos * 100 / fw_info->raw_size));
     }
     rt_kprintf("\n");
-    
+
+done:
     qbt_fw_decompress_deinit(cmprs_type);
     if ( ! qbt_fw_info_write(dst_part_name, fw_info, true))
     {
@@ -867,7 +885,7 @@ static bool qbt_fw_update(const char *dst_part_name, const char *src_part_name, 
     }
 
     LOG_I("Qboot firmware update success.");
-    return(true);    
+    return(true);
 }
 
 #if 0
@@ -1192,14 +1210,14 @@ static bool qbt_release_from_part(const char *part_name, bool check_sign)
 static void qbt_thread_entry(void *params)
 {
     #define QBOOT_REBOOT_DELAY_MS       5000
-    
+
     #ifdef QBOOT_USING_SHELL
     rt_thread_mdelay(2);
     qbt_close_sys_shell();
     #endif
-    
+
     qbt_show_msg();
-    
+
     #ifdef QBOOT_USING_STATUS_LED
     qbt_status_led_init();
     #endif
@@ -1239,7 +1257,7 @@ static void qbt_thread_entry(void *params)
 
     qbt_release_from_part(QBOOT_DOWNLOAD_PART_NAME, true);
     qbt_jump_to_app();
-    
+
     LOG_I("Try resume application from %s", QBOOT_DOWNLOAD_PART_NAME);
     if (qbt_app_resume_from(QBOOT_DOWNLOAD_PART_NAME))
     {
@@ -1258,7 +1276,7 @@ static void qbt_thread_entry(void *params)
         return;
     }
     #endif
-    
+
     LOG_I("Qboot will reboot after %d ms.", QBOOT_REBOOT_DELAY_MS);
     rt_thread_mdelay(QBOOT_REBOOT_DELAY_MS);
     rt_hw_cpu_reset();
@@ -1357,6 +1375,9 @@ static void qbt_fw_info_show(const char *part_name)
         break;
     case QBOOT_ALGO_CMPRS_FASTLZ:
         strcpy(str + strlen(str), " && FASTLZ");
+        break;
+    case QBOOT_ALGO_CMPRS_HPATCHLITE:
+        strcpy(str + strlen(str), " && HPATCHLITE");
         break;
     default:
         strcpy(str + strlen(str), " && UNKNOW");
