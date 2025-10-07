@@ -177,7 +177,7 @@ void hal_DeInit(void)
 }
 
 
-void qbt_jump_to_app(void)
+rt_weak void qbt_jump_to_app(void)
 {
    typedef void (*app_func_t)(void);
     u32 app_addr = QBOOT_APP_ADDR;

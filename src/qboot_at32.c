@@ -47,7 +47,7 @@ static void qbt_qspi_flash_init(void)
     //waiting realize
 }
 
-void qbt_jump_to_app(void)
+rt_weak void qbt_jump_to_app(void)
 {
     qbt_qspi_flash_init();
     
@@ -79,7 +79,7 @@ static void qbt_reset_periph(void)
 #endif
 }
 
-void qbt_jump_to_app(void)
+rt_weak void qbt_jump_to_app(void)
 {
     typedef void (*app_func_t)(void);
     u32 app_addr = QBOOT_APP_ADDR;
